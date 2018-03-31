@@ -45,6 +45,8 @@ dependencies {
   testImplementation deps.robolectric
 
   lintChecks project(':timber-lint')
+
+  implementation "io.reactivex.rxjava2:rxjava:2.1.9"
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
