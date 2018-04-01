@@ -1034,7 +1034,8 @@ public final class Timber {
   }
 
   /*************************************************************************************************************/
-  /** A {@link Tree Tree} for debug builds. Automatically infers the tag from the calling class. */
+  /** A {@link Tree Tree} for Recording logs in a file. Logging priorities as defined in {@link Log} can be set to record only the logs with the matching priority.
+   * {@link this.finalizeFileLoggingTree} MUST BE called once this file logging tree is no longer needed. Automatically infers the tag from the calling class. */
   public static class FileLoggingTree extends DebugTree {
     private static final int MAX_LOG_LENGTH = 4000;
     private static final int MAX_TAG_LENGTH = 23;
@@ -1051,18 +1052,39 @@ public final class Timber {
     private PublishSubject<HashMap<String, Object>> dataBus;
     private HashMap<String, Object> dataMap;
     private SimpleDateFormat dateFormatter;
+    private ArrayList<Integer> loggingPrioritiesListForDiskOp;
 
     private File logFile;
     private FileOutputStream logFileOutputStream;
 
     private CompositeDisposable compositeDisposable;
 
-    @SuppressLint("SimpleDateFormat")
+    /**
+     * Constructor for File logging tree.
+     * @param treeName TreeName for identification later on
+     * @param fileName Logging file name
+     * @param filePath Logging file path
+     * @param loggingTimeFormat TimeStamp format for logging
+     */
     public FileLoggingTree(String treeName, String fileName, String filePath, String loggingTimeFormat) {
+      this(treeName, fileName, filePath, loggingTimeFormat, null);
+    }
+
+    /**
+     * Constructor for File logging tree.
+     * @param treeName TreeName for delegating logs (intended for this tree only) in the file.
+     * @param fileName Logging file name
+     * @param filePath Logging file path
+     * @param loggingTimeFormat TimeStamp format for logging
+     * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
+     */
+    @SuppressLint("SimpleDateFormat")
+    public FileLoggingTree(String treeName, String fileName, String filePath, String loggingTimeFormat, ArrayList<Integer> loggingPrioritiesListForDiskOp) {
       super(treeName);
 
       this.fileName = fileName;
       this.filePath = filePath;
+      this.loggingPrioritiesListForDiskOp = loggingPrioritiesListForDiskOp;
 
       dataMap = new HashMap<>();
       dataBus = PublishSubject.create();
@@ -1079,6 +1101,10 @@ public final class Timber {
     @Override
     protected void log(int priority, String tag, @NotNull String message, Throwable t) {
       super.log(priority, tag, message, t);
+
+      //return if the user defined priority log isn't sent in yet
+      if(loggingPrioritiesListForDiskOp != null && !loggingPrioritiesListForDiskOp.contains(priority))
+        return;
 
       dataMap.clear();
       dataMap.put(PRIORITY, priority);
@@ -1152,6 +1178,7 @@ public final class Timber {
         if(fPath.charAt(fPath.length()-1) == '/' || fPath.charAt(fPath.length()-1) == '\\')
           fPath = fPath.substring(0, fPath.length()-2);
 
+        logFile = new File(String.format("%s/%s.txt", fPath, fName));
         if(!logFile.exists()) {
           logFile.createNewFile();
         }
@@ -1181,6 +1208,26 @@ public final class Timber {
       logFileOutputStream.flush();
     }
 
+    /**
+     * Set the logging priorities
+     * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
+     */
+    public void setLoggingPrioritiesListForDiskOp(ArrayList<Integer> loggingPrioritiesListForDiskOp) {
+      this.loggingPrioritiesListForDiskOp = loggingPrioritiesListForDiskOp;
+    }
+
+    /**
+     * Get list of priorities that are desired to be stored in the logging file. Null if all logging priorities are desired to be recorded in a file
+     * @return list of file logging priorities
+     */
+    public ArrayList<Integer> getLoggingPrioritiesListForDiskOp() {
+      return loggingPrioritiesListForDiskOp;
+    }
+
+    /**
+     * Must be called after the logging services of this tree are no longer needed.
+     * @throws IOException
+     */
     public void finalizeFileLoggingTree() throws IOException {
       if(logFileOutputStream != null) {
         logFileOutputStream.close();
