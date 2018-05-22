@@ -158,10 +158,11 @@ public final class WrongTimberUsageDetector extends Detector implements Detector
     int formatArgumentCount = getFormatArgumentCount(formatString);
     int passedArgCount = numArguments - startIndexOfArguments;
     if (formatArgumentCount < passedArgCount) {
-      context.report(ISSUE_ARG_COUNT, call, context.getLocation(call), String.format(
+    //todo figure out a solution for THIS lint warning when logging function with TreeName as a first argument is called
+      /*      context.report(ISSUE_ARG_COUNT, call, context.getLocation(call), String.format(
           "Wrong argument count, format string `%1$s` requires "
               + "`%2$d` but format call supplies `%3$d`", formatString, formatArgumentCount,
-          passedArgCount));
+          passedArgCount));*/
       return;
     }
 
@@ -178,10 +179,11 @@ public final class WrongTimberUsageDetector extends Detector implements Detector
       if (argumentIndex != numArguments) {
         argument = arguments.get(argumentIndex++);
       } else {
-        context.report(ISSUE_ARG_COUNT, call, context.getLocation(call), String.format(
+        //todo figure out a solution for THIS lint warning when logging function with TreeName as a first argument is called
+        /*context.report(ISSUE_ARG_COUNT, call, context.getLocation(call), String.format(
             "Wrong argument count, format string `%1$s` requires "
                 + "`%2$d` but format call supplies `%3$d`", formatString, formatArgumentCount,
-            passedArgCount));
+            passedArgCount));*/
       }
 
       Class type = getType(argument);

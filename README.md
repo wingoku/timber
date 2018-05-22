@@ -28,6 +28,29 @@ Two easy steps:
 Check out the sample app in `timber-sample/` to see it in action.
 
 
+
+FileLoggingTree
+---------------
+
+This tree can be planted to record the logs in a particular file. Upon initialization of FileLoggingTree, user has to provide a **TreeName**. This tree name is internally used to deligate the logs that use this treeName to this FileLoggingTree. Additionally this FileLoggingTree provides that facility of *displaying/hiding its logs in the logcat*
+
+Following are the features provided by this FileLoggingTree:
+
+1. Assigning treeName to delegate all the logs using treeName to respective FileLoggingTrees
+2. Logging file name
+3. Logging file path
+4. Time stamp format to be used in the logging file
+5. Time zone for time stamp
+6. List of logging priorities that must be recorded in the log file. Use null if all the logging priorities should be recorded in the log file.
+7. Observer callbacks for the completion of disk operation
+
+NOTE
+----
+
+Non file logging trees don't take the tree names into consideration so if you have planted 2 *DebugTree*(s) with different names, they both will show logs in the logcat irrespective if the treeName was used or not, therefore *you will see duplicate logs in the logcat*.
+
+*Therefore it's recommended to plant only 1 DebugTree in the entire application whereas multiple FileLoggingTrees can be planted in an application provided each of them use different treeNames.*
+
 Lint
 ----
 
@@ -83,10 +106,8 @@ Download
 --------
 
 ```groovy
-implementation 'com.jakewharton.timber:timber:4.7.0'
+implementation 'com.jakewharton.timber:wingoku-timber:4.6.11'
 ```
-
-Snapshots of the development version are available in [Sonatype's `snapshots` repository][snap].
 
 
 License

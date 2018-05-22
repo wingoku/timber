@@ -18,7 +18,7 @@ public class DemoActivity extends Activity {
     setContentView(R.layout.demo_activity);
     ButterKnife.bind(this);
     Timber.tag("LifeCycles");
-    Timber.d("Activity Created");
+    Timber.i("Activity Created");
   }
 
   @OnClick({ R.id.hello, R.id.hey, R.id.hi })

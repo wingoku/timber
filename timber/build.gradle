@@ -1,5 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
+apply plugin: 'maven-publish'
+
+def _remoteRepoUrl = "C:\\Users\\Umer\\localMavenRepo\\repo"
+//def _remoteRepoUrl = "http://192.168.100.123:8080/repo"
+def _groupId = "com.jakewharton.timber"
+def _artifactId = "wingoku-timber"
+def _versionNumber = "4.6.11"
 
 task checkstyle(type: Checkstyle) {
   configFile rootProject.file('checkstyle.xml')
@@ -23,6 +30,7 @@ android {
   defaultConfig {
     minSdkVersion versions.minSdk
     consumerProguardFiles 'consumer-proguard-rules.pro'
+    versionName _versionNumber
   }
 
   lintOptions {
@@ -31,8 +39,68 @@ android {
   }
 
   // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
-  libraryVariants.all {
+  /*libraryVariants.all {
     it.generateBuildConfig.enabled = false
+  }*/
+}
+
+
+// If you use each() to iterate through the variant objects,
+// you need to start using all(). That's because each() iterates
+// through only the objects that already exist during configuration timeâ€”
+// but those object don't exist at configuration time with the new model.
+// However, all() adapts to the new model by picking up object as they are
+// added during execution.
+android.libraryVariants.all { variant ->
+  variant.outputs.all {
+    outputFileName = "${_groupId}-${_artifactId}-${android.defaultConfig.versionName}.aar"
+  }
+}
+
+publishing {
+  repositories {
+    maven {
+      url _remoteRepoUrl
+    }
+  }
+  publications {
+    library(MavenPublication) {
+      groupId _groupId
+      artifactId _artifactId
+      version android.defaultConfig.versionName
+
+      artifact ("$buildDir/outputs/aar/${_groupId}-${_artifactId}-${android.defaultConfig.versionName}.aar") { //aar artifact you want to publish
+        builtBy assembleDebug
+      }
+      //generate pom nodes for dependencies
+      pom.withXml {
+        def dependenciesNode = asNode().appendNode('dependencies')
+        configurations.compile.allDependencies.each { dependency ->
+          def dependencyNode = dependenciesNode.appendNode('dependency')
+          dependencyNode.appendNode('groupId', dependency.group)
+          dependencyNode.appendNode('artifactId', dependency.name)
+          dependencyNode.appendNode('version', dependency.version)
+        }
+      }
+    }
+  }
+}
+
+tasks.whenTaskAdded { task ->
+  if (task.name == 'buildAndUpload') {
+    println "Executing buildAndUpload task & publishing the ${_groupId}-${_artifactId}-${android.defaultConfig.versionName}.aar"
+    task.dependsOn "publish"
+  }
+}
+
+task buildAndUpload {
+  println "running awesome wingoku script ^^"
+}
+
+allprojects {
+  repositories {
+    google()
+    jcenter()
   }
 }
 
@@ -46,7 +114,8 @@ dependencies {
 
   lintChecks project(':timber-lint')
 
-  implementation "io.reactivex.rxjava2:rxjava:2.1.9"
+  implementation 'com.novoda:bintray-release:0.2.7' // for not exposing this lib to dependent projects
+  compile 'io.reactivex.rxjava2:rxjava:2.1.13'
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

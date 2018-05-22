@@ -10,14 +10,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.ParseException;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,1210 +34,1696 @@ import io.reactivex.subjects.PublishSubject;
 
 import static java.util.Collections.unmodifiableList;
 
-/** Logging for lazy people. */
-@SuppressWarnings({ "WeakerAccess", "unused" }) // Public API.
+/**
+ * Logging for lazy people.
+ */
+@SuppressWarnings({"WeakerAccess", "unused"}) // Public API.
 public final class Timber {
-  /** Log a verbose message with optional format args. */
-  public static void v(@NonNls String message, Object... args) {
-    TREE_OF_SOULS.v(message, args);
-  }
-
-  /** Log a verbose exception and a message with optional format args. */
-  public static void v(Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.v(t, message, args);
-  }
-
-  /** Log a verbose exception. */
-  public static void v(Throwable t) {
-    TREE_OF_SOULS.v(t);
-  }
-
-  /** Log a debug message with optional format args. */
-  public static void d(@NonNls String message, Object... args) {
-    TREE_OF_SOULS.d(message, args);
-  }
-
-  /** Log a debug exception and a message with optional format args. */
-  public static void d(Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.d(t, message, args);
-  }
-
-  /** Log a debug exception. */
-  public static void d(Throwable t) {
-    TREE_OF_SOULS.d(t);
-  }
-
-  /** Log an info message with optional format args. */
-  public static void i(@NonNls String message, Object... args) {
-    TREE_OF_SOULS.i(message, args);
-  }
-
-  /** Log an info exception and a message with optional format args. */
-  public static void i(Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.i(t, message, args);
-  }
-
-  /** Log an info exception. */
-  public static void i(Throwable t) {
-    TREE_OF_SOULS.i(t);
-  }
-
-  /** Log a warning message with optional format args. */
-  public static void w(@NonNls String message, Object... args) {
-    TREE_OF_SOULS.w(message, args);
-  }
-
-  /** Log a warning exception and a message with optional format args. */
-  public static void w(Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.w(t, message, args);
-  }
-
-  /** Log a warning exception. */
-  public static void w(Throwable t) {
-    TREE_OF_SOULS.w(t);
-  }
-
-  /** Log an error message with optional format args. */
-  public static void e(@NonNls String message, Object... args) {
-    TREE_OF_SOULS.e(message, args);
-  }
-
-  /** Log an error exception and a message with optional format args. */
-  public static void e(Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.e(t, message, args);
-  }
-
-  /** Log an error exception. */
-  public static void e(Throwable t) {
-    TREE_OF_SOULS.e(t);
-  }
-
-  /** Log an assert message with optional format args. */
-  public static void wtf(@NonNls String message, Object... args) {
-    TREE_OF_SOULS.wtf(message, args);
-  }
-
-  /** Log an assert exception and a message with optional format args. */
-  public static void wtf(Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.wtf(t, message, args);
-  }
-
-  /** Log an assert exception. */
-  public static void wtf(Throwable t) {
-    TREE_OF_SOULS.wtf(t);
-  }
-
-  /*****************************************************************************************/
-
-
-  /** Log a verbose message with optional format args. */
-  public static void v(String treeName, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.v(treeName, message, args);
-  }
-
-  /** Log a verbose exception and a message with optional format args. */
-  public static void v(String treeName, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.v(treeName, t, message, args);
-  }
-
-  /** Log a verbose exception. */
-  public static void v(String treeName, Throwable t) {
-    TREE_OF_SOULS.v(treeName, t);
-  }
-
-  /** Log a debug message with optional format args. */
-  public static void d(String treeName, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.d(treeName, message, args);
-  }
-
-  /** Log a debug exception and a message with optional format args. */
-  public static void d(String treeName, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.d(treeName, t, message, args);
-  }
-
-  /** Log a debug exception. */
-  public static void d(String treeName, Throwable t) {
-    TREE_OF_SOULS.d(treeName, t);
-  }
-
-  /** Log an info message with optional format args. */
-  public static void i(String treeName, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.i(treeName, message, args);
-  }
-
-  /** Log an info exception and a message with optional format args. */
-  public static void i(String treeName, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.i(treeName, t, message, args);
-  }
-
-  /** Log an info exception. */
-  public static void i(String treeName, Throwable t) {
-    TREE_OF_SOULS.i(treeName, t);
-  }
-
-  /** Log a warning message with optional format args. */
-  public static void w(String treeName, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.w(treeName, message, args);
-  }
-
-  /** Log a warning exception and a message with optional format args. */
-  public static void w(String treeName, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.w(treeName, t, message, args);
-  }
-
-  /** Log a warning exception. */
-  public static void w(String treeName, Throwable t) {
-    TREE_OF_SOULS.w(treeName, t);
-  }
-
-  /** Log an error message with optional format args. */
-  public static void e(String treeName, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.e(treeName, message, args);
-  }
-
-  /** Log an error exception and a message with optional format args. */
-  public static void e(String treeName, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.e(treeName, t, message, args);
-  }
-
-  /** Log an error exception. */
-  public static void e(String treeName, Throwable t) {
-    TREE_OF_SOULS.e(treeName, t);
-  }
-
-  /** Log an assert message with optional format args. */
-  public static void wtf(String treeName, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.wtf(treeName, message, args);
-  }
-
-  /** Log an assert exception and a message with optional format args. */
-  public static void wtf(String treeName, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.wtf(treeName, t, message, args);
-  }
-
-  /** Log at {@code priority} a message with optional format args. */
-  public static void log(int priority, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.log(priority, message, args);
-  }
-
-  /** Log at {@code priority} an exception and a message with optional format args. */
-  public static void log(int priority, Throwable t, @NonNls String message, Object... args) {
-    TREE_OF_SOULS.log(priority, t, message, args);
-  }
-
-  /** Log at {@code priority} an exception. */
-  public static void log(int priority, Throwable t) {
-    TREE_OF_SOULS.log(priority, t);
-  }
-
-  /**
-   * A view into Timber's planted trees as a tree itself. This can be used for injecting a logger
-   * instance rather than using static methods or to facilitate testing.
-   */
-  @NotNull
-  public static Tree asTree() {
-    return TREE_OF_SOULS;
-  }
-
-  /** Set a one-time tag for use on the next logging call. */
-  @NotNull
-  public static Tree tag(String tag) {
-    Tree[] forest = forestAsArray;
-    for (Tree tree : forest) {
-      tree.explicitTag.set(tag);
-    }
-    return TREE_OF_SOULS;
-  }
-
-  /** Add a new logging tree. */
-  @SuppressWarnings("ConstantConditions") // Validating public API contract.
-  public static void plant(@NotNull Tree tree) {
-    if (tree == null) {
-      throw new NullPointerException("tree == null");
-    }
-    if (tree == TREE_OF_SOULS) {
-      throw new IllegalArgumentException("Cannot plant Timber into itself.");
-    }
-    synchronized (FOREST) {
-      FOREST.add(tree);
-      forestAsArray = FOREST.toArray(new Tree[FOREST.size()]);
-    }
-  }
-
-  /** Adds new logging trees. */
-  @SuppressWarnings("ConstantConditions") // Validating public API contract.
-  public static void plant(@NotNull Tree... trees) {
-    if (trees == null) {
-      throw new NullPointerException("trees == null");
-    }
-    for (Tree tree : trees) {
-      if (tree == null) {
-        throw new NullPointerException("trees contains null");
-      }
-      if (tree == TREE_OF_SOULS) {
-        throw new IllegalArgumentException("Cannot plant Timber into itself.");
-      }
-    }
-    synchronized (FOREST) {
-      Collections.addAll(FOREST, trees);
-      forestAsArray = FOREST.toArray(new Tree[FOREST.size()]);
-    }
-  }
-
-  /** Remove a planted tree. */
-  public static void uproot(@NotNull Tree tree) {
-    synchronized (FOREST) {
-      if (!FOREST.remove(tree)) {
-        throw new IllegalArgumentException("Cannot uproot tree which is not planted: " + tree);
-      }
-      forestAsArray = FOREST.toArray(new Tree[FOREST.size()]);
-    }
-  }
-
-  /** Remove all planted trees. */
-  public static void uprootAll() {
-    synchronized (FOREST) {
-      FOREST.clear();
-      forestAsArray = TREE_ARRAY_EMPTY;
-    }
-  }
-
-  /** Return a copy of all planted {@linkplain Tree trees}. */
-  @NotNull
-  public static List<Tree> forest() {
-    synchronized (FOREST) {
-      return unmodifiableList(new ArrayList<>(FOREST));
-    }
-  }
-
-  public static int treeCount() {
-    synchronized (FOREST) {
-      return FOREST.size();
-    }
-  }
-
-  private static final Tree[] TREE_ARRAY_EMPTY = new Tree[0];
-  // Both fields guarded by 'FOREST'.
-  private static final List<Tree> FOREST = new ArrayList<>();
-  static volatile Tree[] forestAsArray = TREE_ARRAY_EMPTY;
-
-  /** A {@link Tree} that delegates to all planted trees in the {@linkplain #FOREST forest}. */
-  private static final Tree TREE_OF_SOULS = new Tree("") {
-    @Override public void v(String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.v(message, args);
-      }
-    }
-
-    @Override public void v(Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.v(t, message, args);
-      }
-    }
-
-    @Override public void v(Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.v(t);
-      }
-    }
-
-    @Override public void d(String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.d(message, args);
-      }
-    }
-
-    @Override public void d(Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.d(t, message, args);
-      }
-    }
-
-    @Override public void d(Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.d(t);
-      }
-    }
-
-    @Override public void i(String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.i(message, args);
-      }
-    }
-
-    @Override public void i(Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.i(t, message, args);
-      }
-    }
-
-    @Override public void i(Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.i(t);
-      }
-    }
-
-    @Override public void w(String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.w(message, args);
-      }
-    }
-
-    @Override public void w(Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.w(t, message, args);
-      }
-    }
-
-    @Override public void w(Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.w(t);
-      }
-    }
-
-    @Override public void e(String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.e(message, args);
-      }
-    }
-
-    @Override public void e(Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.e(t, message, args);
-      }
-    }
-
-    @Override public void e(Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.e(t);
-      }
-    }
-
-    @Override public void wtf(String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.wtf(message, args);
-      }
-    }
-
-    @Override public void wtf(Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.wtf(t, message, args);
-      }
-    }
-
-    @Override public void wtf(Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.wtf(t);
-      }
-    }
-
-    /**************************************************************************************************/
-    @Override public void v(String treeName, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.v(message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void v(String treeName, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.v(t, message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void v(String treeName, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.v(t);
-          return;
-        }
-      }
-    }
-
-    @Override public void d(String treeName, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.d(message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void d(String treeName, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.d(t, message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void d(String treeName, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.d(t);
-          return;
-        }
-      }
-    }
-
-    @Override public void i(String treeName, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.i(message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void i(String treeName, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.i(t, message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void i(String treeName, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.i(t);
-          return;
-        }
-      }
-    }
-
-    @Override public void w(String treeName, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.w(message, args);
-        }
-      }
-    }
-
-    @Override public void w(String treeName, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.w(t, message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void w(String treeName, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.w(t);
-          return;
-        }
-      }
-    }
-
-    @Override public void e(String treeName, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.e(message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void e(String treeName, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.e(t, message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void e(String treeName, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.e(t);
-          return;
-        }
-      }
-    }
-
-    @Override public void wtf(String treeName, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.wtf(message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void wtf(String treeName, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.wtf(t, message, args);
-          return;
-        }
-      }
-    }
-
-    @Override public void wtf(String treeName, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        if(tree.getTreeName().equals(treeName)) {
-          tree.wtf(t);
-          return;
-        }
-      }
-    }
-
-    @Override public void log(int priority, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.log(priority, message, args);
-      }
-    }
-
-    @Override public void log(int priority, Throwable t, String message, Object... args) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.log(priority, t, message, args);
-      }
-    }
-
-    @Override public void log(int priority, Throwable t) {
-      Tree[] forest = forestAsArray;
-      for (Tree tree : forest) {
-        tree.log(priority, t);
-      }
-    }
-
-    @Override protected void log(int priority, String tag, @NotNull String message, Throwable t) {
-      throw new AssertionError("Missing override for log method.");
-    }
-  };
-
-  private Timber() {
-    throw new AssertionError("No instances.");
-  }
-
-  /** A facade for handling logging calls. Install instances via {@link #plant Timber.plant()}. */
-  public static abstract class Tree {
-    final ThreadLocal<String> explicitTag = new ThreadLocal<>();
-    private String treeName;
-
-    public Tree(String tName) {
-      treeName = tName;
-    }
-
-    public void setTreeName(String tName) {
-      treeName = tName;
-    }
-
-    public String getTreeName() {
-      return treeName;
-    }
-
-    @Nullable
-    String getTag() {
-      String tag = explicitTag.get();
-      if (tag != null) {
-        explicitTag.remove();
-      }
-      return tag;
-    }
-
-    /** Log a verbose message with optional format args. */
-    public void v(String message, Object... args) {
-      prepareLog(Log.VERBOSE, null, message, args);
-    }
-
-    /** Log a verbose exception and a message with optional format args. */
-    public void v(Throwable t, String message, Object... args) {
-      prepareLog(Log.VERBOSE, t, message, args);
-    }
-
-    /** Log a verbose exception. */
-    public void v(Throwable t) {
-      prepareLog(Log.VERBOSE, t, null);
-    }
-
-    /** Log a debug message with optional format args. */
-    public void d(String message, Object... args) {
-      prepareLog(Log.DEBUG, null, message, args);
-    }
-
-    /** Log a debug exception and a message with optional format args. */
-    public void d(Throwable t, String message, Object... args) {
-      prepareLog(Log.DEBUG, t, message, args);
-    }
-
-    /** Log a debug exception. */
-    public void d(Throwable t) {
-      prepareLog(Log.DEBUG, t, null);
-    }
-
-    /** Log an info message with optional format args. */
-    public void i(String message, Object... args) {
-      prepareLog(Log.INFO, null, message, args);
-    }
-
-    /** Log an info exception and a message with optional format args. */
-    public void i(Throwable t, String message, Object... args) {
-      prepareLog(Log.INFO, t, message, args);
-    }
-
-    /** Log an info exception. */
-    public void i(Throwable t) {
-      prepareLog(Log.INFO, t, null);
-    }
-
-    /** Log a warning message with optional format args. */
-    public void w(String message, Object... args) {
-      prepareLog(Log.WARN, null, message, args);
-    }
-
-    /** Log a warning exception and a message with optional format args. */
-    public void w(Throwable t, String message, Object... args) {
-      prepareLog(Log.WARN, t, message, args);
-    }
-
-    /** Log a warning exception. */
-    public void w(Throwable t) {
-      prepareLog(Log.WARN, t, null);
-    }
-
-    /** Log an error message with optional format args. */
-    public void e(String message, Object... args) {
-      prepareLog(Log.ERROR, null, message, args);
-    }
-
-    /** Log an error exception and a message with optional format args. */
-    public void e(Throwable t, String message, Object... args) {
-      prepareLog(Log.ERROR, t, message, args);
-    }
-
-    /** Log an error exception. */
-    public void e(Throwable t) {
-      prepareLog(Log.ERROR, t, null);
-    }
-
-    /** Log an assert message with optional format args. */
-    public void wtf(String message, Object... args) {
-      prepareLog(Log.ASSERT, null, message, args);
-    }
-
-    /** Log an assert exception and a message with optional format args. */
-    public void wtf(Throwable t, String message, Object... args) {
-      prepareLog(Log.ASSERT, t, message, args);
-    }
-
-    /** Log an assert exception. */
-    public void wtf(Throwable t) {
-      prepareLog(Log.ASSERT, t, null);
-    }
-
-    /******************************************************************************************************/
-
-    /** Log a verbose message with optional format args. */
-    public void v(String treeName, String message, Object... args) {
-      prepareLog(Log.VERBOSE, null, message, args);
-    }
-
-    /** Log a verbose exception and a message with optional format args. */
-    public void v(String treeName, Throwable t, String message, Object... args) {
-      prepareLog(Log.VERBOSE, t, message, args);
-    }
-
-    /** Log a verbose exception. */
-    public void v(String treeName, Throwable t) {
-      prepareLog(Log.VERBOSE, t, null);
-    }
-
-    /** Log a debug message with optional format args. */
-    public void d(String treeName, String message, Object... args) {
-      prepareLog(Log.DEBUG, null, message, args);
-    }
-
-    /** Log a debug exception and a message with optional format args. */
-    public void d(String treeName, Throwable t, String message, Object... args) {
-      prepareLog(Log.DEBUG, t, message, args);
-    }
-
-    /** Log a debug exception. */
-    public void d(String treeName, Throwable t) {
-      prepareLog(Log.DEBUG, t, null);
-    }
-
-    /** Log an info message with optional format args. */
-    public void i(String treeName, String message, Object... args) {
-      prepareLog(Log.INFO, null, message, args);
-    }
-
-    /** Log an info exception and a message with optional format args. */
-    public void i(String treeName, Throwable t, String message, Object... args) {
-      prepareLog(Log.INFO, t, message, args);
-    }
-
-    /** Log an info exception. */
-    public void i(String treeName, Throwable t) {
-      prepareLog(Log.INFO, t, null);
-    }
-
-    /** Log a warning message with optional format args. */
-    public void w(String treeName, String message, Object... args) {
-      prepareLog(Log.WARN, null, message, args);
-    }
-
-    /** Log a warning exception and a message with optional format args. */
-    public void w(String treeName, Throwable t, String message, Object... args) {
-      prepareLog(Log.WARN, t, message, args);
-    }
-
-    /** Log a warning exception. */
-    public void w(String treeName, Throwable t) {
-      prepareLog(Log.WARN, t, null);
-    }
-
-    /** Log an error message with optional format args. */
-    public void e(String treeName, String message, Object... args) {
-      prepareLog(Log.ERROR, null, message, args);
-    }
-
-    /** Log an error exception and a message with optional format args. */
-    public void e(String treeName, Throwable t, String message, Object... args) {
-      prepareLog(Log.ERROR, t, message, args);
-    }
-
-    /** Log an error exception. */
-    public void e(String treeName, Throwable t) {
-      prepareLog(Log.ERROR, t, null);
-    }
-
-    /** Log an assert message with optional format args. */
-    public void wtf(String treeName, String message, Object... args) {
-      prepareLog(Log.ASSERT, null, message, args);
-    }
-
-    /** Log an assert exception and a message with optional format args. */
-    public void wtf(String treeName, Throwable t, String message, Object... args) {
-      prepareLog(Log.ASSERT, t, message, args);
-    }
-
-    /** Log an assert exception. */
-    public void wtf(String treeName, Throwable t) {
-      prepareLog(Log.ASSERT, t, null);
-    }
-
-    /** Log at {@code priority} a message with optional format args. */
-    public void log(int priority, String message, Object... args) {
-      prepareLog(priority, null, message, args);
-    }
-
-    /** Log at {@code priority} an exception and a message with optional format args. */
-    public void log(int priority, Throwable t, String message, Object... args) {
-      prepareLog(priority, t, message, args);
-    }
-
-    /** Log at {@code priority} an exception. */
-    public void log(int priority, Throwable t) {
-      prepareLog(priority, t, null);
+//    private static HashMap<String, String> plantedTreesNameMap = new HashMap<>();
+
+    /**
+     * Log a verbose message with optional format args.
+     */
+    public static void v(@NonNls String message, Object... args) {
+        TREE_OF_SOULS.v(message, args);
     }
 
     /**
-     * Return whether a message at {@code priority} should be logged.
-     * @deprecated use {@link #isLoggable(String, int)} instead.
+     * Log a verbose exception and a message with optional format args.
      */
-    @Deprecated
-    protected boolean isLoggable(int priority) {
-      return true;
+    public static void v(Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.v(t, message, args);
     }
 
-    /** Return whether a message at {@code priority} or {@code tag} should be logged. */
-    protected boolean isLoggable(@Nullable String tag, int priority) {
-      //noinspection deprecation
-      return isLoggable(priority);
+    /**
+     * Log a verbose exception.
+     */
+    public static void v(Throwable t) {
+        TREE_OF_SOULS.v(t);
     }
 
-    private void prepareLog(int priority, Throwable t, String message, Object... args) {
-      // Consume tag even when message is not loggable so that next message is correctly tagged.
-      String tag = getTag();
+    /**
+     * Log a debug message with optional format args.
+     */
+    public static void d(@NonNls String message, Object... args) {
+        TREE_OF_SOULS.d(message, args);
+    }
 
-      if (!isLoggable(tag, priority)) {
-        return;
-      }
-      if (message != null && message.length() == 0) {
-        message = null;
-      }
-      if (message == null) {
-        if (t == null) {
-          return; // Swallow message if it's null and there's no throwable.
+    /**
+     * Log a debug exception and a message with optional format args.
+     */
+    public static void d(Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.d(t, message, args);
+    }
+
+    /**
+     * Log a debug exception.
+     */
+    public static void d(Throwable t) {
+        TREE_OF_SOULS.d(t);
+    }
+
+    /**
+     * Log an info message with optional format args.
+     */
+    public static void i(@NonNls String message, Object... args) {
+        TREE_OF_SOULS.i(message, args);
+    }
+
+    /**
+     * Log an info exception and a message with optional format args.
+     */
+    public static void i(Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.i(t, message, args);
+    }
+
+    /**
+     * Log an info exception.
+     */
+    public static void i(Throwable t) {
+        TREE_OF_SOULS.i(t);
+    }
+
+    /**
+     * Log a warning message with optional format args.
+     */
+    public static void w(@NonNls String message, Object... args) {
+        TREE_OF_SOULS.w(message, args);
+    }
+
+    /**
+     * Log a warning exception and a message with optional format args.
+     */
+    public static void w(Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.w(t, message, args);
+    }
+
+    /**
+     * Log a warning exception.
+     */
+    public static void w(Throwable t) {
+        TREE_OF_SOULS.w(t);
+    }
+
+    /**
+     * Log an error message with optional format args.
+     */
+    public static void e(@NonNls String message, Object... args) {
+        TREE_OF_SOULS.e(message, args);
+    }
+
+    /**
+     * Log an error exception and a message with optional format args.
+     */
+    public static void e(Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.e(t, message, args);
+    }
+
+    /**
+     * Log an error exception.
+     */
+    public static void e(Throwable t) {
+        TREE_OF_SOULS.e(t);
+    }
+
+    /**
+     * Log an assert message with optional format args.
+     */
+    public static void wtf(@NonNls String message, Object... args) {
+        TREE_OF_SOULS.wtf(message, args);
+    }
+
+    /**
+     * Log an assert exception and a message with optional format args.
+     */
+    public static void wtf(Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.wtf(t, message, args);
+    }
+
+    /**
+     * Log an assert exception.
+     */
+    public static void wtf(Throwable t) {
+        TREE_OF_SOULS.wtf(t);
+    }
+
+    /*****************************************************************************************/
+
+
+    /**
+     * Log a verbose message with optional format args.
+     */
+    public static void v(String treeName, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.v(treeName, message, args);
+    }
+
+    /**
+     * Log a verbose exception and a message with optional format args.
+     */
+    public static void v(String treeName, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.v(treeName, t, message, args);
+    }
+
+    /**
+     * Log a verbose exception.
+     */
+    public static void v(String treeName, Throwable t) {
+        TREE_OF_SOULS.v(treeName, t);
+    }
+
+    /**
+     * Log a debug message with optional format args.
+     */
+    public static void d(String treeName, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.d(treeName, message, args);
+    }
+
+    /**
+     * Log a debug exception and a message with optional format args.
+     */
+    public static void d(String treeName, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.d(treeName, t, message, args);
+    }
+
+    /**
+     * Log a debug exception.
+     */
+    public static void d(String treeName, Throwable t) {
+        TREE_OF_SOULS.d(treeName, t);
+    }
+
+    /**
+     * Log an info message with optional format args.
+     */
+    public static void i(String treeName, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.i(treeName, message, args);
+    }
+
+    /**
+     * Log an info exception and a message with optional format args.
+     */
+    public static void i(String treeName, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.i(treeName, t, message, args);
+    }
+
+    /**
+     * Log an info exception.
+     */
+    public static void i(String treeName, Throwable t) {
+        TREE_OF_SOULS.i(treeName, t);
+    }
+
+    /**
+     * Log a warning message with optional format args.
+     */
+    public static void w(String treeName, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.w(treeName, message, args);
+    }
+
+    /**
+     * Log a warning exception and a message with optional format args.
+     */
+    public static void w(String treeName, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.w(treeName, t, message, args);
+    }
+
+    /**
+     * Log a warning exception.
+     */
+    public static void w(String treeName, Throwable t) {
+        TREE_OF_SOULS.w(treeName, t);
+    }
+
+    /**
+     * Log an error message with optional format args.
+     */
+    public static void e(String treeName, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.e(treeName, message, args);
+    }
+
+    /**
+     * Log an error exception and a message with optional format args.
+     */
+    public static void e(String treeName, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.e(treeName, t, message, args);
+    }
+
+    /**
+     * Log an error exception.
+     */
+    public static void e(String treeName, Throwable t) {
+        TREE_OF_SOULS.e(treeName, t);
+    }
+
+    /**
+     * Log an assert message with optional format args.
+     */
+    public static void wtf(String treeName, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.wtf(treeName, message, args);
+    }
+
+    /**
+     * Log an assert exception and a message with optional format args.
+     */
+    public static void wtf(String treeName, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.wtf(treeName, t, message, args);
+    }
+
+    /**
+     * Log at {@code priority} a message with optional format args.
+     */
+    public static void log(int priority, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.log(priority, message, args);
+    }
+
+    /**
+     * Log at {@code priority} an exception and a message with optional format args.
+     */
+    public static void log(int priority, Throwable t, @NonNls String message, Object... args) {
+        TREE_OF_SOULS.log(priority, t, message, args);
+    }
+
+    /**
+     * Log at {@code priority} an exception.
+     */
+    public static void log(int priority, Throwable t) {
+        TREE_OF_SOULS.log(priority, t);
+    }
+
+    /**
+     * A view into Timber's planted trees as a tree itself. This can be used for injecting a logger
+     * instance rather than using static methods or to facilitate testing.
+     */
+    @NotNull
+    public static Tree asTree() {
+        return TREE_OF_SOULS;
+    }
+
+    /**
+     * Set a one-time tag for use on the next logging call.
+     */
+    @NotNull
+    public static Tree tag(String tag) {
+        Tree[] forest = forestAsArray;
+        for (Tree tree : forest) {
+            tree.explicitTag.set(tag);
         }
-        message = getStackTraceString(t);
-      } else {
-        if (args != null && args.length > 0) {
-          message = formatMessage(message, args);
+        return TREE_OF_SOULS;
+    }
+
+    /**
+     * Add a new logging tree.
+     */
+    @SuppressWarnings("ConstantConditions") // Validating public API contract.
+    public static void plant(@NotNull Tree tree) {
+        if (tree == null) {
+            throw new NullPointerException("tree == null");
         }
-        if (t != null) {
-          message += "\n" + getStackTraceString(t);
+        if (tree == TREE_OF_SOULS) {
+            throw new IllegalArgumentException("Cannot plant Timber into itself.");
         }
-      }
+        boolean debugTreeAlreadyPlanted = false;
 
-      log(priority, tag, message, t);
-    }
+        synchronized (FOREST) {
+            for(Tree t : FOREST) {                     // checking with name because a user can extend DebugTree for their custom Tree. In that t instanceOf DebugTree will still return true because that custom tree is extending from DebugTree and hence it's the instanceOf DebugTree according to Java
+                if(!(t instanceof FileLoggingTree) && (t.getClass().getName().equals(DebugTree.class.getName()) && tree.getClass().getName().equals(DebugTree.class.getName()))) {
+                    System.err.println("DebugTree is already planted. You are retrying to plant a DebugTree, this is not allowed to avoid duplicate logs showing up in LogCat, therefore this DebugTree plantation will be ignored");
+                    debugTreeAlreadyPlanted = true;
+                    break;
+                }
+            }
 
-    /**
-     * Formats a log message with optional arguments.
-     */
-    protected String formatMessage(@NotNull String message, @NotNull Object[] args) {
-      return String.format(message, args);
-    }
-
-    private String getStackTraceString(Throwable t) {
-      // Don't replace this with Log.getStackTraceString() - it hides
-      // UnknownHostException, which is not what we want.
-      StringWriter sw = new StringWriter(256);
-      PrintWriter pw = new PrintWriter(sw, false);
-      t.printStackTrace(pw);
-      pw.flush();
-      return sw.toString();
-    }
-
-    /**
-     * Write a log message to its destination. Called for all level-specific methods by default.
-     *
-     * @param priority Log level. See {@link Log} for constants.
-     * @param tag Explicit or inferred tag. May be {@code null}.
-     * @param message Formatted log message. May be {@code null}, but then {@code t} will not be.
-     * @param t Accompanying exceptions. May be {@code null}, but then {@code message} will not be.
-     */
-    protected abstract void log(int priority, @Nullable String tag, @NotNull String message,
-        @Nullable Throwable t);
-  }
-
-  /** A {@link Tree Tree} for debug builds. Automatically infers the tag from the calling class. */
-  public static class DebugTree extends Tree {
-    private static final int MAX_LOG_LENGTH = 4000;
-    private static final int MAX_TAG_LENGTH = 23;
-    private static final int CALL_STACK_INDEX = 5;
-    private static final Pattern ANONYMOUS_CLASS = Pattern.compile("(\\$\\d+)+$");
-
-    public DebugTree(String tName) {
-      super(tName);
-    }
-
-    /**
-     * Extract the tag which should be used for the message from the {@code element}. By default
-     * this will use the class name without any anonymous class suffixes (e.g., {@code Foo$1}
-     * becomes {@code Foo}).
-     * <p>
-     * Note: This will not be called if a {@linkplain #tag(String) manual tag} was specified.
-     */
-    @Nullable
-    protected String createStackElementTag(@NotNull StackTraceElement element) {
-      String tag = element.getClassName();
-      Matcher m = ANONYMOUS_CLASS.matcher(tag);
-      if (m.find()) {
-        tag = m.replaceAll("");
-      }
-      tag = tag.substring(tag.lastIndexOf('.') + 1);
-      // Tag length limit was removed in API 24.
-      if (tag.length() <= MAX_TAG_LENGTH || Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        return tag;
-      }
-      return tag.substring(0, MAX_TAG_LENGTH);
-    }
-
-    @Override final String getTag() {
-      String tag = super.getTag();
-      if (tag != null) {
-        return tag;
-      }
-
-      // DO NOT switch this to Thread.getCurrentThread().getStackTrace(). The test will pass
-      // because Robolectric runs them on the JVM but on Android the elements are different.
-      StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-      if (stackTrace.length <= CALL_STACK_INDEX) {
-        throw new IllegalStateException(
-            "Synthetic stacktrace didn't have enough elements: are you using proguard?");
-      }
-      return createStackElementTag(stackTrace[CALL_STACK_INDEX]);
-    }
-
-    /**
-     * Break up {@code message} into maximum-length chunks (if needed) and send to either
-     * {@link Log#println(int, String, String) Log.println()} or
-     * {@link Log#wtf(String, String) Log.wtf()} for logging.
-     *
-     * {@inheritDoc}
-     */
-    @Override protected void log(int priority, String tag, @NotNull String message, Throwable t) {
-      if (message.length() < MAX_LOG_LENGTH) {
-        if (priority == Log.ASSERT) {
-          Log.wtf(tag, message);
-        } else {
-          Log.println(priority, tag, message);
+            // avoiding plantation of multiple debug trees to avoid duplicate logs showing up in logcat
+            if(!debugTreeAlreadyPlanted) {
+                FOREST.add(tree);
+                forestAsArray = FOREST.toArray(new Tree[FOREST.size()]);
+            }
         }
-        return;
-      }
-
-      // Split by line, then ensure each line can fit into Log's maximum length.
-      for (int i = 0, length = message.length(); i < length; i++) {
-        int newline = message.indexOf('\n', i);
-        newline = newline != -1 ? newline : length;
-        do {
-          int end = Math.min(newline, i + MAX_LOG_LENGTH);
-          String part = message.substring(i, end);
-          if (priority == Log.ASSERT) {
-            Log.wtf(tag, part);
-          } else {
-            Log.println(priority, tag, part);
-          }
-          i = end;
-        } while (i < newline);
-      }
-    }
-  }
-
-  /*************************************************************************************************************/
-  /** A {@link Tree Tree} for Recording logs in a file. Logging priorities as defined in {@link Log} can be set to record only the logs with the matching priority.
-   * {@link this.finalizeFileLoggingTree} MUST BE called once this file logging tree is no longer needed. Automatically infers the tag from the calling class. */
-  public static class FileLoggingTree extends DebugTree {
-    private static final int MAX_LOG_LENGTH = 4000;
-    private static final int MAX_TAG_LENGTH = 23;
-    private static final int CALL_STACK_INDEX = 5;
-    private static final Pattern ANONYMOUS_CLASS = Pattern.compile("(\\$\\d+)+$");
-
-    private final String TAG = "tag";
-    private final String PRIORITY = "priority";
-    private final String MESSAGE = "message";
-    private final String THROWABLE = "throwable";
-
-    private String fileName;
-    private String filePath;
-    private PublishSubject<HashMap<String, Object>> dataBus;
-    private HashMap<String, Object> dataMap;
-    private SimpleDateFormat dateFormatter;
-    private ArrayList<Integer> loggingPrioritiesListForDiskOp;
-
-    private File logFile;
-    private FileOutputStream logFileOutputStream;
-
-    private CompositeDisposable compositeDisposable;
-
-    /**
-     * Constructor for File logging tree.
-     * @param treeName TreeName for identification later on
-     * @param fileName Logging file name
-     * @param filePath Logging file path
-     * @param loggingTimeFormat TimeStamp format for logging
-     */
-    public FileLoggingTree(String treeName, String fileName, String filePath, String loggingTimeFormat) {
-      this(treeName, fileName, filePath, loggingTimeFormat, null);
     }
 
     /**
-     * Constructor for File logging tree.
-     * @param treeName TreeName for delegating logs (intended for this tree only) in the file.
-     * @param fileName Logging file name
-     * @param filePath Logging file path
-     * @param loggingTimeFormat TimeStamp format for logging
-     * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
+     * Adds new logging trees.
      */
-    @SuppressLint("SimpleDateFormat")
-    public FileLoggingTree(String treeName, String fileName, String filePath, String loggingTimeFormat, ArrayList<Integer> loggingPrioritiesListForDiskOp) {
-      super(treeName);
-
-      this.fileName = fileName;
-      this.filePath = filePath;
-      this.loggingPrioritiesListForDiskOp = loggingPrioritiesListForDiskOp;
-
-      dataMap = new HashMap<>();
-      dataBus = PublishSubject.create();
-      compositeDisposable = new CompositeDisposable();
-      dateFormatter = new SimpleDateFormat(loggingTimeFormat);
-
-      try {
-        initFile(fileName, filePath);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    @SuppressWarnings("ConstantConditions") // Validating public API contract.
+    public static void plant(@NotNull Tree... trees) {
+        if (trees == null) {
+            throw new NullPointerException("trees == null");
+        }
+        for (Tree tree : trees) {
+            if (tree == null) {
+                throw new NullPointerException("trees contains null");
+            }
+            if (tree == TREE_OF_SOULS) {
+                throw new IllegalArgumentException("Cannot plant Timber into itself.");
+            }
+        }
+        synchronized (FOREST) {
+            Collections.addAll(FOREST, trees);
+            forestAsArray = FOREST.toArray(new Tree[FOREST.size()]);
+        }
     }
 
-    @Override
-    protected void log(int priority, String tag, @NotNull String message, Throwable t) {
-      super.log(priority, tag, message, t);
+    /**
+     * Remove a planted tree.
+     */
+    public static void uproot(@NotNull Tree tree) {
+        synchronized (FOREST) {
+            if (tree instanceof FileLoggingTree)
+                try {
+                    ((FileLoggingTree) tree).finalizeFileLoggingTree();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-      //return if the user defined priority log isn't sent in yet
-      if(loggingPrioritiesListForDiskOp != null && !loggingPrioritiesListForDiskOp.contains(priority))
-        return;
+            if (!FOREST.remove(tree)) {
+                throw new IllegalArgumentException("Cannot uproot tree which is not planted: " + tree);
+            }
+            forestAsArray = FOREST.toArray(new Tree[FOREST.size()]);
+//            plantedTreesNameMap.remove(tree.getTreeName());
+        }
+    }
 
+    /**
+     * Remove all planted trees.
+     */
+    public static void uprootAll() {
+        synchronized (FOREST) {
+            FOREST.clear();
+            forestAsArray = TREE_ARRAY_EMPTY;
+        }
+    }
+
+    /**
+     * Return a copy of all planted {@linkplain Tree trees}.
+     */
+    @NotNull
+    public static List<Tree> forest() {
+        synchronized (FOREST) {
+            return unmodifiableList(new ArrayList<>(FOREST));
+        }
+    }
+
+    public static int treeCount() {
+        synchronized (FOREST) {
+            return FOREST.size();
+        }
+    }
+
+    private static final Tree[] TREE_ARRAY_EMPTY = new Tree[0];
+    // Both fields guarded by 'FOREST'.
+    private static final List<Tree> FOREST = new ArrayList<>();
+    static volatile Tree[] forestAsArray = TREE_ARRAY_EMPTY;
+
+    /**
+     * A {@link Tree} that delegates to all planted trees in the {@linkplain #FOREST forest}.
+     */
+    private static final Tree TREE_OF_SOULS = new Tree("") {
+        @Override
+        public void v(String message, Object... args) {
+            v(getTreeName(), message, args);
+        }
+
+        @Override
+        public void v(Throwable t, String message, Object... args) {
+            v(getTreeName(), t, message, args);
+        }
+
+        @Override
+        public void v(Throwable t) {
+            v(getTreeName(), t);
+        }
+
+        @Override
+        public void d(String message, Object... args) {
+            d(getTreeName(), message, args);
+        }
+
+        @Override
+        public void d(Throwable t, String message, Object... args) {
+            d(getTreeName(), t, message, args);
+        }
+
+        @Override
+        public void d(Throwable t) {
+            d(getTreeName(), t);
+        }
+
+        @Override
+        public void i(String message, Object... args) {
+            i(getTreeName(), message, args);
+        }
+
+        @Override
+        public void i(Throwable t, String message, Object... args) {
+            i(getTreeName(), t, message, args);
+        }
+
+        @Override
+        public void i(Throwable t) {
+            i(getTreeName(), t);
+        }
+
+        @Override
+        public void w(String message, Object... args) {
+            w(getTreeName(), message, args);
+        }
+
+        @Override
+        public void w(Throwable t, String message, Object... args) {
+            w(getTreeName(), t, message, args);
+        }
+
+        @Override
+        public void w(Throwable t) {
+            w(getTreeName(), t);
+        }
+
+        @Override
+        public void e(String message, Object... args) {
+            e(getTreeName(), message, args);
+        }
+
+        @Override
+        public void e(Throwable t, String message, Object... args) {
+            e(getTreeName(), t, message, args);
+        }
+
+        @Override
+        public void e(Throwable t) {
+            e(getTreeName(), t);
+        }
+
+        @Override
+        public void wtf(String message, Object... args) {
+            wtf(getTreeName(), message, args);
+        }
+
+        @Override
+        public void wtf(Throwable t, String message, Object... args) {
+            wtf(getTreeName(), t, message, args);
+        }
+
+        @Override
+        public void wtf(Throwable t) {
+            wtf(getTreeName(), t);
+        }
+
+        /**************************************************************************************************/
+        @Override
+        public void v(String treeName, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+
+            for (Tree tree : forest) {
+               /* if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.v(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.v(treeName, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.v(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.v(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void v(String treeName, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.v(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.v(treeName, t, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.v(treeName, t, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.v(treeName, t, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void v(String treeName, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.v(t);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.v(treeName, t);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.v(t);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.v(t);
+                }
+            }
+        }
+
+        @Override
+        public void d(String treeName, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.d(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.d(treeName, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.d(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.d(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void d(String treeName, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.d(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.d(treeName, t, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.d(treeName, t, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.d(treeName, t, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void d(String treeName, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.d(t);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.d(t);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.d(t);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.d(t);
+                }
+            }
+        }
+
+        @Override
+        public void i(String treeName, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.i(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.i(treeName, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.i(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.i(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void i(String treeName, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.i(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.i(treeName, t, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.i(treeName, t, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.i(treeName, t, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void i(String treeName, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+               /* if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.i(t);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.i(t);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.i(t);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.i(t);
+                }
+            }
+        }
+
+        @Override
+        public void w(String treeName, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.w(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.w(treeName, message, args);
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.w(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.w(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void w(String treeName, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.w(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.w(treeName, t, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.w(treeName, t, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.w(treeName, t, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void w(String treeName, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.w(t);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.w(t);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.w(t);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.w(t);
+                }
+            }
+        }
+
+        @Override
+        public void e(String treeName, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.e(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.e(treeName, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.e(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.e(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void e(String treeName, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.e(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.e(treeName, t, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.e(treeName, t, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.e(treeName, t, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void e(String treeName, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.e(t);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.e(t);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.e(t);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.e(t);
+                }
+            }
+        }
+
+        @Override
+        public void wtf(String treeName, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.wtf(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.wtf(treeName, message, args);
+                    return;
+                }*/
+
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.wtf(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.wtf(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void wtf(String treeName, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.wtf(message, args);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.wtf(treeName, t, message, args);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.wtf(treeName, message, args);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.wtf(treeName, message, args);
+                }
+            }
+        }
+
+        @Override
+        public void wtf(String treeName, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                /*if (treeName.isEmpty() || plantedTreesNameMap.get(treeName) == null) {
+                    tree.wtf(t);
+                    return;
+                } else if (tree.getTreeName().equals(treeName)) {
+                    tree.wtf(t);
+                    return;
+                }*/
+                if (tree instanceof FileLoggingTree && tree.getTreeName().equals(treeName)) {
+                    tree.wtf(t);
+                } else if (!(tree instanceof FileLoggingTree)) {
+                    tree.wtf(t);
+                }
+            }
+        }
+
+        @Override
+        public void log(int priority, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                tree.log(priority, message, args);
+            }
+        }
+
+        @Override
+        public void log(int priority, Throwable t, String message, Object... args) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                tree.log(priority, t, message, args);
+            }
+        }
+
+        @Override
+        public void log(int priority, Throwable t) {
+            Tree[] forest = forestAsArray;
+            for (Tree tree : forest) {
+                tree.log(priority, t);
+            }
+        }
+
+        @Override
+        protected void log(int priority, String tag, @NotNull String message, Throwable t) {
+            throw new AssertionError("Missing override for log method.");
+        }
+    };
+
+    private Timber() {
+        throw new AssertionError("No instances.");
+    }
+
+    /**
+     * A facade for handling logging calls. Install instances via {@link #plant Timber.plant()}.
+     */
+    public static abstract class Tree {
+        final ThreadLocal<String> explicitTag = new ThreadLocal<>();
+        private String treeName = "";
+
+        public Tree() {
+
+        }
+
+        public Tree(String tName) {
+            treeName = tName;
+//            plantedTreesNameMap.put(treeName, treeName);
+        }
+
+        public void setTreeName(String tName) {
+            treeName = tName;
+        }
+
+        public String getTreeName() {
+            return treeName;
+        }
+
+        @Nullable
+        String getTag() {
+            String tag = explicitTag.get();
+            if (tag != null) {
+                explicitTag.remove();
+            }
+            return tag;
+        }
+
+        /**
+         * Log a verbose message with optional format args.
+         */
+        public void v(String message, Object... args) {
+            prepareLog(Log.VERBOSE, null, message, args);
+        }
+
+        /**
+         * Log a verbose exception and a message with optional format args.
+         */
+        public void v(Throwable t, String message, Object... args) {
+            prepareLog(Log.VERBOSE, t, message, args);
+        }
+
+        /**
+         * Log a verbose exception.
+         */
+        public void v(Throwable t) {
+            prepareLog(Log.VERBOSE, t, null);
+        }
+
+        /**
+         * Log a debug message with optional format args.
+         */
+        public void d(String message, Object... args) {
+            prepareLog(Log.DEBUG, null, message, args);
+        }
+
+        /**
+         * Log a debug exception and a message with optional format args.
+         */
+        public void d(Throwable t, String message, Object... args) {
+            prepareLog(Log.DEBUG, t, message, args);
+        }
+
+        /**
+         * Log a debug exception.
+         */
+        public void d(Throwable t) {
+            prepareLog(Log.DEBUG, t, null);
+        }
+
+        /**
+         * Log an info message with optional format args.
+         */
+        public void i(String message, Object... args) {
+            prepareLog(Log.INFO, null, message, args);
+        }
+
+        /**
+         * Log an info exception and a message with optional format args.
+         */
+        public void i(Throwable t, String message, Object... args) {
+            prepareLog(Log.INFO, t, message, args);
+        }
+
+        /**
+         * Log an info exception.
+         */
+        public void i(Throwable t) {
+            prepareLog(Log.INFO, t, null);
+        }
+
+        /**
+         * Log a warning message with optional format args.
+         */
+        public void w(String message, Object... args) {
+            prepareLog(Log.WARN, null, message, args);
+        }
+
+        /**
+         * Log a warning exception and a message with optional format args.
+         */
+        public void w(Throwable t, String message, Object... args) {
+            prepareLog(Log.WARN, t, message, args);
+        }
+
+        /**
+         * Log a warning exception.
+         */
+        public void w(Throwable t) {
+            prepareLog(Log.WARN, t, null);
+        }
+
+        /**
+         * Log an error message with optional format args.
+         */
+        public void e(String message, Object... args) {
+            prepareLog(Log.ERROR, null, message, args);
+        }
+
+        /**
+         * Log an error exception and a message with optional format args.
+         */
+        public void e(Throwable t, String message, Object... args) {
+            prepareLog(Log.ERROR, t, message, args);
+        }
+
+        /**
+         * Log an error exception.
+         */
+        public void e(Throwable t) {
+            prepareLog(Log.ERROR, t, null);
+        }
+
+        /**
+         * Log an assert message with optional format args.
+         */
+        public void wtf(String message, Object... args) {
+            prepareLog(Log.ASSERT, null, message, args);
+        }
+
+        /**
+         * Log an assert exception and a message with optional format args.
+         */
+        public void wtf(Throwable t, String message, Object... args) {
+            prepareLog(Log.ASSERT, t, message, args);
+        }
+
+        /**
+         * Log an assert exception.
+         */
+        public void wtf(Throwable t) {
+            prepareLog(Log.ASSERT, t, null);
+        }
+
+        /******************************************************************************************************/
+
+        /**
+         * Log a verbose message with optional format args.
+         */
+        public void v(String treeName, String message, Object... args) {
+            prepareLog(Log.VERBOSE, null, message, args);
+        }
+
+        /**
+         * Log a verbose exception and a message with optional format args.
+         */
+        public void v(String treeName, Throwable t, String message, Object... args) {
+            prepareLog(Log.VERBOSE, t, message, args);
+        }
+
+        /**
+         * Log a verbose exception.
+         */
+        public void v(String treeName, Throwable t) {
+            prepareLog(Log.VERBOSE, t, null);
+        }
+
+        /**
+         * Log a debug message with optional format args.
+         */
+        public void d(String treeName, String message, Object... args) {
+            prepareLog(Log.DEBUG, null, message, args);
+        }
+
+        /**
+         * Log a debug exception and a message with optional format args.
+         */
+        public void d(String treeName, Throwable t, String message, Object... args) {
+            prepareLog(Log.DEBUG, t, message, args);
+        }
+
+        /**
+         * Log a debug exception.
+         */
+        public void d(String treeName, Throwable t) {
+            prepareLog(Log.DEBUG, t, null);
+        }
+
+        /**
+         * Log an info message with optional format args.
+         */
+        public void i(String treeName, String message, Object... args) {
+            prepareLog(Log.INFO, null, message, args);
+        }
+
+        /**
+         * Log an info exception and a message with optional format args.
+         */
+        public void i(String treeName, Throwable t, String message, Object... args) {
+            prepareLog(Log.INFO, t, message, args);
+        }
+
+        /**
+         * Log an info exception.
+         */
+        public void i(String treeName, Throwable t) {
+            prepareLog(Log.INFO, t, null);
+        }
+
+        /**
+         * Log a warning message with optional format args.
+         */
+        public void w(String treeName, String message, Object... args) {
+            prepareLog(Log.WARN, null, message, args);
+        }
+
+        /**
+         * Log a warning exception and a message with optional format args.
+         */
+        public void w(String treeName, Throwable t, String message, Object... args) {
+            prepareLog(Log.WARN, t, message, args);
+        }
+
+        /**
+         * Log a warning exception.
+         */
+        public void w(String treeName, Throwable t) {
+            prepareLog(Log.WARN, t, null);
+        }
+
+        /**
+         * Log an error message with optional format args.
+         */
+        public void e(String treeName, String message, Object... args) {
+            prepareLog(Log.ERROR, null, message, args);
+        }
+
+        /**
+         * Log an error exception and a message with optional format args.
+         */
+        public void e(String treeName, Throwable t, String message, Object... args) {
+            prepareLog(Log.ERROR, t, message, args);
+        }
+
+        /**
+         * Log an error exception.
+         */
+        public void e(String treeName, Throwable t) {
+            prepareLog(Log.ERROR, t, null);
+        }
+
+        /**
+         * Log an assert message with optional format args.
+         */
+        public void wtf(String treeName, String message, Object... args) {
+            prepareLog(Log.ASSERT, null, message, args);
+        }
+
+        /**
+         * Log an assert exception and a message with optional format args.
+         */
+        public void wtf(String treeName, Throwable t, String message, Object... args) {
+            prepareLog(Log.ASSERT, t, message, args);
+        }
+
+        /**
+         * Log an assert exception.
+         */
+        public void wtf(String treeName, Throwable t) {
+            prepareLog(Log.ASSERT, t, null);
+        }
+
+        /**
+         * Log at {@code priority} a message with optional format args.
+         */
+        public void log(int priority, String message, Object... args) {
+            prepareLog(priority, null, message, args);
+        }
+
+        /**
+         * Log at {@code priority} an exception and a message with optional format args.
+         */
+        public void log(int priority, Throwable t, String message, Object... args) {
+            prepareLog(priority, t, message, args);
+        }
+
+        /**
+         * Log at {@code priority} an exception.
+         */
+        public void log(int priority, Throwable t) {
+            prepareLog(priority, t, null);
+        }
+
+        /**
+         * Return whether a message at {@code priority} should be logged.
+         *
+         * @deprecated use {@link #isLoggable(String, int)} instead.
+         */
+        @Deprecated
+        protected boolean isLoggable(int priority) {
+            return true;
+        }
+
+        /**
+         * Return whether a message at {@code priority} or {@code tag} should be logged.
+         */
+        protected boolean isLoggable(@Nullable String tag, int priority) {
+            //noinspection deprecation
+            return isLoggable(priority);
+        }
+
+        private void prepareLog(int priority, Throwable t, String message, Object... args) {
+//            System.out.println("prepareLogs: message: "+ message);
+            // Consume tag even when message is not loggable so that next message is correctly tagged.
+            String tag = getTag();
+
+//            System.out.println("prepareLogs: !isLoggable(tag, priority): "+ !isLoggable(tag, priority) + " tag: "+ tag + " priority: "+ priority);
+            if (!isLoggable(tag, priority)) {
+                return;
+            }
+            if (message != null && message.length() == 0) {
+                message = null;
+            }
+            if (message == null) {
+                if (t == null) {
+                    return; // Swallow message if it's null and there's no throwable.
+                }
+                message = getStackTraceString(t);
+            } else {
+                if (args != null && args.length > 0) {
+                    message = formatMessage(message, args);
+                }
+                if (t != null) {
+                    message += "\n" + getStackTraceString(t);
+                }
+            }
+
+            log(priority, tag, message, t);
+        }
+
+        /**
+         * Formats a log message with optional arguments.
+         */
+        protected String formatMessage(@NotNull String message, @NotNull Object[] args) {
+            return String.format(message, args);
+        }
+
+        private String getStackTraceString(Throwable t) {
+            // Don't replace this with Log.getStackTraceString() - it hides
+            // UnknownHostException, which is not what we want.
+            StringWriter sw = new StringWriter(256);
+            PrintWriter pw = new PrintWriter(sw, false);
+            t.printStackTrace(pw);
+            pw.flush();
+            return sw.toString();
+        }
+
+        /**
+         * Write a log message to its destination. Called for all level-specific methods by default.
+         *
+         * @param priority Log level. See {@link Log} for constants.
+         * @param tag      Explicit or inferred tag. May be {@code null}.
+         * @param message  Formatted log message. May be {@code null}, but then {@code t} will not be.
+         * @param t        Accompanying exceptions. May be {@code null}, but then {@code message} will not be.
+         */
+        protected abstract void log(int priority, @Nullable String tag, @NotNull String message,
+                                    @Nullable Throwable t);
+    }
+
+    /**
+     * A {@link Tree Tree} for debug builds. Automatically infers the tag from the calling class.
+     */
+    public static class DebugTree extends Tree {
+        private static final int MAX_LOG_LENGTH = 4000;
+        private static final int MAX_TAG_LENGTH = 23;
+        private static final int CALL_STACK_INDEX = 5;
+        private static final Pattern ANONYMOUS_CLASS = Pattern.compile("(\\$\\d+)+$");
+
+        public DebugTree() {
+            super("");
+        }
+
+        public DebugTree(String tName) {
+            super(tName);
+        }
+
+        /**
+         * Extract the tag which should be used for the message from the {@code element}. By default
+         * this will use the class name without any anonymous class suffixes (e.g., {@code Foo$1}
+         * becomes {@code Foo}).
+         * <p>
+         * Note: This will not be called if a {@linkplain #tag(String) manual tag} was specified.
+         */
+        @Nullable
+        protected String createStackElementTag(@NotNull StackTraceElement element) {
+            String tag = element.getClassName();
+            Matcher m = ANONYMOUS_CLASS.matcher(tag);
+            if (m.find()) {
+                tag = m.replaceAll("");
+            }
+            tag = tag.substring(tag.lastIndexOf('.') + 1);
+            // Tag length limit was removed in API 24.
+            if (tag.length() <= MAX_TAG_LENGTH || Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                return tag;
+            }
+            return tag.substring(0, MAX_TAG_LENGTH);
+        }
+
+        @Override
+        final String getTag() {
+            String tag = super.getTag();
+            if (tag != null) {
+                return tag;
+            }
+
+            // DO NOT switch this to Thread.getCurrentThread().getStackTrace(). The test will pass
+            // because Robolectric runs them on the JVM but on Android the elements are different.
+            StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+            if (stackTrace.length <= CALL_STACK_INDEX) {
+                throw new IllegalStateException(
+                        "Synthetic stacktrace didn't have enough elements: are you using proguard?");
+            }
+            return createStackElementTag(stackTrace[CALL_STACK_INDEX]);
+        }
+
+        /**
+         * Break up {@code message} into maximum-length chunks (if needed) and send to either
+         * {@link Log#println(int, String, String) Log.println()} or
+         * {@link Log#wtf(String, String) Log.wtf()} for logging.
+         * <p>
+         * {@inheritDoc}
+         */
+        @Override
+        protected void log(int priority, String tag, @NotNull String message, Throwable t) {
+//            System.out.println("Debug tree: message: "+ message);
+            if (message.length() < MAX_LOG_LENGTH) {
+                if (priority == Log.ASSERT) {
+                    Log.wtf(tag, message);
+                } else {
+                    Log.println(priority, tag, message);
+                }
+                return;
+            }
+
+            // Split by line, then ensure each line can fit into Log's maximum length.
+            for (int i = 0, length = message.length(); i < length; i++) {
+                int newline = message.indexOf('\n', i);
+                newline = newline != -1 ? newline : length;
+                do {
+                    int end = Math.min(newline, i + MAX_LOG_LENGTH);
+                    String part = message.substring(i, end);
+                    if (priority == Log.ASSERT) {
+                        Log.wtf(tag, part);
+                    } else {
+                        Log.println(priority, tag, part);
+                    }
+                    i = end;
+                } while (i < newline);
+            }
+        }
+    }
+
+    /*************************************************************************************************************/
+    /**
+     * A {@link Tree Tree} for Recording logs in a file. Logging priorities as defined in {@link Log} can be set to record only the logs with the matching priority.
+     * {@link this.finalizeFileLoggingTree} MUST BE called once this file logging tree is no longer needed OR just call {@Timber.uproot()} with this tree object. Automatically infers the tag from the calling class.
+     */
+    public static class FileLoggingTree extends DebugTree {
+        private static final int MAX_LOG_LENGTH = 4000;
+        private static final int MAX_TAG_LENGTH = 23;
+        private static final int CALL_STACK_INDEX = 5;
+        private static final Pattern ANONYMOUS_CLASS = Pattern.compile("(\\$\\d+)+$");
+
+        private final String TAG = "tag";
+        private final String PRIORITY = "priority";
+        private final String MESSAGE = "message";
+        private final String THROWABLE = "throwable";
+
+        public static final String DISK_WRITE_COMPLETED = "WritingLogsToDiskCompleted?";
+        public static final String CLOSING_FILE_COMPLETED = "FileClosingOperationCompleted?";
+
+        private Date date;
+        private TimeZone timeZone;
+        private Locale timeZoneLocale;
+        private String fileName;
+        private String filePath;
+        private PublishSubject<FileLoggingTreeDataModel> dataBus;
+        private PublishSubject<HashMap<String, Boolean>> fileLoggerStatusBus;
+        //    private HashMap<String, Object> dataMap;
+        private HashMap<String, Boolean> loggerOperationsMap;
+        private SimpleDateFormat dateFormatter;
+        private ArrayList<Integer> loggingPrioritiesListForDiskOp;
+
+        private File logFile;
+        private FileOutputStream logFileOutputStream;
+
+        private CompositeDisposable compositeDisposable;
+
+        private boolean showLogsInLogcat;
+
+        /**
+         * Constructor for File logging tree.
+         *
+         * @param treeName          TreeName for identification later on
+         * @param fileName          Logging file name
+         * @param filePath          Logging file path
+         * @param loggingTimeFormat TimeStamp format for logging
+         * @param timeZone          logging time zone
+         */
+        public FileLoggingTree(String treeName, String fileName, String filePath, String loggingTimeFormat, TimeZone timeZone) {
+            this(treeName, true, fileName, filePath, null);
+            this.timeZone = timeZone;
+            initTimeFormatter(loggingTimeFormat);
+        }
+
+        /**
+         * Constructor for File logging tree.
+         *
+         * @param treeName          TreeName for identification later on
+         * @param fileName          Logging file name
+         * @param filePath          Logging file path
+         * @param loggingTimeFormat TimeStamp format for logging
+         * @param timeZone          logging time zone
+         */
+        public FileLoggingTree(String treeName, boolean showLogsInLogcat, String fileName, String filePath, String loggingTimeFormat, TimeZone timeZone) {
+            this(treeName, showLogsInLogcat, fileName, filePath, null);
+            this.timeZone = timeZone;
+            initTimeFormatter(loggingTimeFormat);
+        }
+
+        /**
+         * Constructor for File logging tree.
+         *
+         * @param treeName          TreeName for identification later on
+         * @param fileName          Logging file name
+         * @param filePath          Logging file path
+         * @param loggingTimeFormat TimeStamp format for logging
+         * @param timeZone          logging time zone
+         */
+        public FileLoggingTree(String treeName, boolean showLogsInLogcat, String fileName, String filePath, String loggingTimeFormat, Locale timeZone) {
+            this(treeName, showLogsInLogcat, fileName, filePath, null);
+            this.timeZoneLocale = timeZone;
+            initTimeFormatter(loggingTimeFormat);
+        }
+
+        /**
+         * Constructor for File logging tree.
+         *
+         * @param treeName                       TreeName for delegating logs (intended for this tree only) in the file.
+         * @param fileName                       Logging file name
+         * @param filePath                       Logging file path
+         * @param loggingTimeFormat              TimeStamp format for logging
+         * @param timeZone                       logging time zone
+         * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
+         */
+        @SuppressLint("SimpleDateFormat")
+        public FileLoggingTree(String treeName, boolean showLogsInLogcat, String fileName, String filePath, String loggingTimeFormat, TimeZone timeZone, ArrayList<Integer> loggingPrioritiesListForDiskOp) {
+            this(treeName, showLogsInLogcat, fileName, filePath, loggingPrioritiesListForDiskOp);
+            this.timeZone = timeZone;
+            initTimeFormatter(loggingTimeFormat);
+        }
+
+        /**
+         * Constructor for File logging tree.
+         *
+         * @param treeName                       TreeName for delegating logs (intended for this tree only) in the file.
+         * @param fileName                       Logging file name
+         * @param filePath                       Logging file path
+         * @param loggingTimeFormat              TimeStamp format for logging
+         * @param timeZone                       logging time zone
+         * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
+         */
+        @SuppressLint("SimpleDateFormat")
+        public FileLoggingTree(String treeName, boolean showLogsInLogcat, String fileName, String filePath, String loggingTimeFormat, Locale timeZone, ArrayList<Integer> loggingPrioritiesListForDiskOp) {
+            this(treeName, showLogsInLogcat, fileName, filePath, loggingPrioritiesListForDiskOp);
+            this.timeZoneLocale = timeZone;
+            initTimeFormatter(loggingTimeFormat);
+        }
+
+        private FileLoggingTree(String treeName, boolean showLogsInLogcat, String fileName, String filePath, ArrayList<Integer> loggingPrioritiesListForDiskOp) {
+            super(treeName);
+
+            this.fileName = fileName;
+            this.filePath = filePath;
+            this.showLogsInLogcat = showLogsInLogcat;
+            this.loggingPrioritiesListForDiskOp = loggingPrioritiesListForDiskOp;
+
+//      dataMap = new HashMap<>();
+            loggerOperationsMap = new HashMap<>();
+            dataBus = PublishSubject.create();
+            fileLoggerStatusBus = PublishSubject.create();
+            date = new Date(System.currentTimeMillis());
+            compositeDisposable = new CompositeDisposable();
+
+            subscribeToDataBus(dataBus);
+
+            try {
+                initFile(fileName, filePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void initTimeFormatter(String loggingTimeFormat) {
+            if (loggingTimeFormat.isEmpty())
+                loggingTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SS";
+            if (timeZoneLocale != null) {
+                dateFormatter = new SimpleDateFormat(loggingTimeFormat, timeZoneLocale);
+            } else {
+                dateFormatter = new SimpleDateFormat(loggingTimeFormat);
+                dateFormatter.setTimeZone(timeZone);
+            }
+        }
+
+        @Override
+        protected void log(int priority, String tag, @NotNull String message, Throwable t) {
+//            System.out.println("showLogsInLogcat: "+showLogsInLogcat+ " message: "+ message);
+            if (showLogsInLogcat)
+                super.log(priority, tag, message, t);
+
+            //return if the user defined priority log isn't sent in yet
+            if (loggingPrioritiesListForDiskOp != null && !loggingPrioritiesListForDiskOp.contains(priority))
+                return;
+
+//      System.out.println("didn't care for priorities. message: "+ message);
+            FileLoggingTreeDataModel dataModel = new FileLoggingTreeDataModel();
+            dataModel.setPriority(priority);
+            dataModel.setTag(tag);
+            dataModel.setMessage(message);
+            dataModel.setThrowable(t);
+      /*HashMap<String, Object> dataMap = new HashMap<>();
       dataMap.clear();
       dataMap.put(PRIORITY, priority);
       dataMap.put(TAG, tag);
       dataMap.put(MESSAGE, message);
-      dataMap.put(THROWABLE, t);
+      dataMap.put(THROWABLE, t);*/
 
-      dataBus.onNext(dataMap);
-    }
-
-    private void subscribeToDataBus(PublishSubject<HashMap<String, Object>> dBus) {
-      compositeDisposable.add(dBus.subscribeOn(Schedulers.io())
-              .observeOn(Schedulers.io())
-              .subscribeWith(new DisposableObserver<HashMap<String, Object>>() {
-                @Override
-                public void onNext(HashMap<String, Object> stringObjectHashMap) {
-                  try {
-                    writeToDisk(stringObjectHashMap);
-                  } catch (IOException e) {
-                    e.printStackTrace();
-                  }
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                  e.printStackTrace();
-                }
-
-                @Override
-                public void onComplete() {
-
-                }
-              }));
-    }
-
-    private String getPriority(int priority) {
-      String priorityString = "";
-
-      switch (priority) {
-        case Log.ERROR:
-          priorityString = "ERROR";
-          break;
-
-        case Log.INFO:
-          priorityString = "INFO";
-          break;
-
-        case Log.DEBUG:
-          priorityString = "DEBUG";
-          break;
-
-        case Log.WARN:
-          priorityString = "WARN";
-          break;
-
-        case Log.ASSERT:
-          priorityString = "ASSERT";
-          break;
-      }
-
-      return priorityString;
-    }
-
-    protected void initFile(String fName, String fPath) throws IOException {
-      File directories = new File(fPath);
-      if(!directories.exists()) {
-        directories.mkdirs();
-      }
-
-      if(logFile == null) {
-        if(fPath.charAt(fPath.length()-1) == '/' || fPath.charAt(fPath.length()-1) == '\\')
-          fPath = fPath.substring(0, fPath.length()-2);
-
-        logFile = new File(String.format("%s/%s.txt", fPath, fName));
-        if(!logFile.exists()) {
-          logFile.createNewFile();
+            dataBus.onNext(dataModel);
         }
-      }
+
+        private void subscribeToDataBus(PublishSubject<FileLoggingTreeDataModel> dBus) {
+            compositeDisposable.add(dBus.subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .subscribeWith(new DisposableObserver<FileLoggingTreeDataModel>() {
+                        @Override
+                        public void onNext(FileLoggingTreeDataModel dataModel) {
+//                  System.out.println("didn't care for priorities: Data: "+ dataModel.getMessage());
+                            try {
+                                writeToDisk(dataModel);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    }));
+        }
+
+        private String getPriority(int priority) {
+            String priorityString = "";
+
+            switch (priority) {
+                case Log.ERROR:
+                    priorityString = "ERROR";
+                    break;
+
+                case Log.INFO:
+                    priorityString = "INFO";
+                    break;
+
+                case Log.DEBUG:
+                    priorityString = "DEBUG";
+                    break;
+
+                case Log.WARN:
+                    priorityString = "WARN";
+                    break;
+
+                case Log.ASSERT:
+                    priorityString = "ASSERT";
+                    break;
+
+                case Log.VERBOSE:
+                    priorityString = "VERBOSE";
+                    break;
+            }
+
+            return priorityString;
+        }
+
+        protected void initFile(String fName, String fPath) throws IOException {
+            System.out.println("provided path and fileName: " + String.format("%s/%s.txt", fPath, fName));
+            File directories = new File(fPath);
+            if (!directories.exists()) {
+                directories.mkdirs();
+            }
+
+            if (logFile == null) {
+                if (fPath.charAt(fPath.length() - 1) == '/' || fPath.charAt(fPath.length() - 1) == '\\') {
+                    fPath = fPath.substring(0, fPath.length() - 2);
+                    filePath = fPath;
+                    System.out.println("new path is: " + fPath);
+                }
+
+                logFile = new File(String.format("%s/%s.txt", fPath, fName));
+                if (!logFile.exists()) {
+                    logFile.createNewFile();
+                }
+
+                System.out.println("log file created at: " + logFile.getAbsolutePath());
+            }
+        }
+
+        protected void writeToDisk(FileLoggingTreeDataModel dataModel) throws IOException {
+            String error = Log.getStackTraceString(dataModel.getThrowable());
+            if (logFile == null || !logFile.exists()) {
+                initFile(fileName, filePath);
+            }
+
+            if (logFileOutputStream == null) {
+                logFileOutputStream = new FileOutputStream(logFile, true);
+            }
+
+            date.setTime(System.currentTimeMillis());
+            String loggingTime = dateFormatter.format(date);
+
+            String throwableExceptionString = Log.getStackTraceString(dataModel.getThrowable());
+            if (throwableExceptionString.equals(dataModel.getMessage()))
+                throwableExceptionString = "";
+
+      /*if(dataMap == null) {
+        System.out.println("dataMap is null. Reintializing dataMap");
+        dataMap = new HashMap<>();
+      }*/
+
+            String priority = getPriority(dataModel.getPriority());
+            String tag = dataModel.getTag();
+            String message = dataModel.getMessage();
+
+            String data = String.format("%s:    %s:    %s:    %s:    %s\n", loggingTime, priority, tag, message, throwableExceptionString);
+
+//            System.out.println("TreeName: " + this.getTreeName());
+
+//            System.out.println("writing to file: " + logFile.getAbsolutePath() + " : " + data);
+            logFileOutputStream.write(data.getBytes());
+            logFileOutputStream.flush();
+
+//      System.out.println("clearing dataMap");
+//      dataMap.clear();
+            loggerOperationsMap.clear();
+            loggerOperationsMap.put(DISK_WRITE_COMPLETED, true);
+            fileLoggerStatusBus.onNext(loggerOperationsMap);
+        }
+
+        /**
+         * Set the logging priorities
+         *
+         * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
+         */
+        public void setLoggingPrioritiesListForDiskOp(ArrayList<Integer> loggingPrioritiesListForDiskOp) {
+            this.loggingPrioritiesListForDiskOp = loggingPrioritiesListForDiskOp;
+        }
+
+        /**
+         * Get list of priorities that are desired to be stored in the logging file. Null if all logging priorities are desired to be recorded in a file
+         *
+         * @return list of file logging priorities
+         */
+        public ArrayList<Integer> getLoggingPrioritiesListForDiskOp() {
+            return loggingPrioritiesListForDiskOp;
+        }
+
+        /**
+         * Must be called after the logging services of this tree are no longer needed OR just call {@link #uproot(Tree)} with this tree object
+         *
+         * @throws IOException
+         */
+        public void finalizeFileLoggingTree() throws IOException {
+            if (logFileOutputStream != null) {
+                logFileOutputStream.close();
+            }
+
+            compositeDisposable.clear();
+            loggerOperationsMap.clear();
+            loggerOperationsMap.put(CLOSING_FILE_COMPLETED, true);
+            fileLoggerStatusBus.onNext(loggerOperationsMap);
+        }
+
+        /**
+         * Subscribe to logger operation events. The subscriber will be notified when the {@link FileLoggingTree} is done writing logs to disk and/or when {@link FileLoggingTree} is done closing the log file
+         *
+         * @param subscriber
+         */
+        public void subscribeToLoggerOperationsBus(DisposableObserver<HashMap<String, Boolean>> subscriber) {
+            compositeDisposable.add(fileLoggerStatusBus.subscribeWith(subscriber));
+        }
     }
-
-    protected void writeToDisk(HashMap<String, Object> dMap) throws IOException {
-      if(logFile == null) {
-        initFile(fileName, filePath);
-      }
-
-      if(logFileOutputStream == null) {
-        logFileOutputStream = new FileOutputStream(logFile, true);
-      }
-
-      String loggingTime = "";
-
-      try {
-        loggingTime = dateFormatter.parse(String.valueOf(System.currentTimeMillis())).toString();
-      } catch (ParseException e) {
-        e.printStackTrace();
-      }
-
-      String data = String.format("%s    %s    %s    %s    %s", loggingTime, getPriority((int)dMap.get(PRIORITY)), (String)dMap.get(TAG), (String)dMap.get(MESSAGE), (String)dMap.get(THROWABLE));
-
-      logFileOutputStream.write(data.getBytes());
-      logFileOutputStream.flush();
-    }
-
-    /**
-     * Set the logging priorities
-     * @param loggingPrioritiesListForDiskOp logging priorities as in {@link Log} that should be recorded in a file. Set null if all the log priorities are desired to be recorded in the logging file
-     */
-    public void setLoggingPrioritiesListForDiskOp(ArrayList<Integer> loggingPrioritiesListForDiskOp) {
-      this.loggingPrioritiesListForDiskOp = loggingPrioritiesListForDiskOp;
-    }
-
-    /**
-     * Get list of priorities that are desired to be stored in the logging file. Null if all logging priorities are desired to be recorded in a file
-     * @return list of file logging priorities
-     */
-    public ArrayList<Integer> getLoggingPrioritiesListForDiskOp() {
-      return loggingPrioritiesListForDiskOp;
-    }
-
-    /**
-     * Must be called after the logging services of this tree are no longer needed.
-     * @throws IOException
-     */
-    public void finalizeFileLoggingTree() throws IOException {
-      if(logFileOutputStream != null) {
-        logFileOutputStream.close();
-      }
-
-      compositeDisposable.clear();
-    }
-  }
 }
